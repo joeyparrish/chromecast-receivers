@@ -1,0 +1,88 @@
+<html>
+  <head>
+    <title>Chromecast Speed Test - Launcher</title>
+    <style>
+
+/* Match padding of receiver, make text big, and center it all. */
+body {
+  padding: 10vh 10vw;
+  text-align: center;
+  font-size: 4vh;
+}
+
+/* Initially hidden. */
+#launch-button-wrapper {
+  display: none;
+}
+
+#launch-button {
+  /* Style the launch button to just be the icon. */
+  border: none;
+  background: none;
+  cursor: pointer;
+
+  /* Make it 10% of the view port height. */
+  height: 10vh;
+}
+
+#loading {
+  /* Match button height. */
+  height: 10vh;
+}
+
+#source {
+  margin-top: 10vh;
+}
+
+#source a {
+  color: black;
+}
+
+    </style>
+    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+    <script>
+
+// Start a sender session so that the cast button will launch the right app.
+window['__onGCastApiAvailable'] = function(isAvailable) {
+  if (isAvailable) {
+    cast.framework.CastContext.getInstance().setOptions({
+      receiverApplicationId: '009EBD9B',
+      autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED,
+    });
+
+    // Hide the loading message and show the launch button.
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('launch-button-wrapper').style.display = 'block';
+  }
+};
+
+function launch() {
+  cast.framework.CastContext.getInstance().requestSession();
+}
+
+    </script>
+  </head>
+  <body>
+    <div>
+      Chromecast Speed Test - Powered by OpenSpeedtest.com
+    </div>
+
+    <!-- A very brief message while loading. -->
+    <div id="loading">
+      Loading Chromecast APIs...
+    </div>
+
+    <!-- The launch button, which shows even when there are no devices. -->
+    <div id="launch-button-wrapper">
+      <button id="launch-button" onclick="launch()">
+        <svg height="100%" width="100%" viewBox="0 0 24 24" version="1.1">
+          <path d="M1,18 L1,21 L4,21 C4,19.34 2.66,18 1,18 L1,18 Z M1,14 L1,16 C3.76,16 6,18.24 6,21 L8,21 C8,17.13 4.87,14 1,14 L1,14 Z M1,10 L1,12 C5.97,12 10,16.03 10,21 L12,21 C12,14.92 7.07,10 1,10 L1,10 Z M21,3 L3,3 C1.9,3 1,3.9 1,5 L1,8 L3,8 L3,5 L21,5 L21,19 L14,19 L14,21 L21,21 C22.1,21 23,20.1 23,19 L23,5 C23,3.9 22.1,3 21,3 L21,3 Z" fill="black"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div id="source">
+      <a href="https://github.com/joeyparrish/chromecast-speed-test">Source Code</a>
+    </div>
+  </body>
+</html>

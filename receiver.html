@@ -1,0 +1,60 @@
+<html>
+  <head>
+    <title>Chromecast Speed Test - Receiver</title>
+    <style>
+
+body {
+  /* Chromecast may not have the same built-in styles as a desktop browser. */
+  background-color: white;
+  color: black;
+
+  /* We should avoid the edges of the screen because of overscan. */
+  padding: 10vh 10vw;
+}
+
+#powered-by {
+  /* Place the "powered by" message in the center. */
+  width: 100%;
+  text-align: center;
+  /* Make it large. */
+  font-size: 4vh;
+}
+
+#embed {
+  /* The embed should have no border. */
+  border: none;
+  /* The embed should take up all its allotted horizontal space. */
+  width: 100%;
+  /* The embed should only take up 70% of the vertical screen.  This leaves 10%
+     margin on each side for overscan, plus 10% for "powered by".  There should
+     be no vertical overflow. */
+  height: 70vh;
+  overflow: hidden;
+  /* This is the minimum OpenSpeedTest.com wants for the embedded widget. */
+  min-height: 360px;
+}
+
+    </style>
+    <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
+    <script>
+
+/* A receiver context must be started, or the app will get shut down by the
+   device after some timeout. */
+window.addEventListener('DOMContentLoaded', () => {
+  const context = cast.framework.CastReceiverContext.getInstance();
+  context.start({
+    disableIdleTimeout: true,
+  });
+});
+
+    </script>
+  </head>
+  <body>
+    <!-- Proper credit.  -->
+    <div id="powered-by">
+      Chromecast Speed Test - Powered by OpenSpeedtest.com
+    </div>
+    <!-- The embedded widget. -->
+    <iframe id="embed" src="https://openspeedtest.com/speedtest?run"></iframe>
+  </body>
+</html>
