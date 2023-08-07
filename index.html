@@ -28,6 +28,8 @@ body {
 .option {
   border: 1px solid black;
   width: 15vw;
+  display: flex;
+  flex-direction: column;
 }
 
 .title {
@@ -36,6 +38,7 @@ body {
 
 .description {
   font-size: 2vh;
+  margin-bottom: 2vh;
 }
 
 .launch {
@@ -46,6 +49,9 @@ body {
 
   /* Make it 10% of the view port height. */
   height: 10vh;
+
+  /* Push it to the bottom of its container. */
+  margin-top: auto;
 }
 
 .launch img {
