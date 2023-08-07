@@ -5,6 +5,14 @@ body {
 
   /* We should avoid the edges of the screen because of overscan. */
   padding: 10vh 10vw;
+  /* Padding inside width/height. */
+  box-sizing: border-box;
+  /* No margin. */
+  margin: 0;
+
+  /* Big, visible, centered text by default. */
+  font-size: 4vh;
+  text-align: center;
 }
 
 .hidden {

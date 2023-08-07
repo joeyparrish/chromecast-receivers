@@ -1,0 +1,47 @@
+<html>
+  <head>
+    <title>Print Cast SDK Version</title>
+    <link rel="stylesheet" type="text/css" href="common.css">
+    <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
+    <script src="start-session.js"></script>
+  </head>
+  <body>
+    <div id="output"></div>
+  </body>
+  <script>
+
+async function main() {
+  output.textContent = `Cast SDK version ${cast.framework.VERSION}`;
+
+  if (window.speechSynthesis) {
+    const onEnd = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // Repeat the version number only, and slowly.
+      const shortUtterance = new SpeechSynthesisUtterance(
+          `version ${cast.framework.VERSION}`);
+      shortUtterance.rate = 0.5;
+      shortUtterance.onend = onEnd;
+      speechSynthesis.speak(shortUtterance);
+    };
+
+    const fullUtterance = new SpeechSynthesisUtterance(output.textContent);
+    fullUtterance.onend = onEnd;
+    fullUtterance.onerror = () => {
+      // On Cast, it's fine to synthesize speech on page load.
+      // On Chrome, you need user interaction.  To debug, allow clicking the
+      // document to start this process.
+      console.log('Failure!  Click document to play sound.');
+      document.addEventListener('click', main, {once: true});
+    };
+    speechSynthesis.speak(fullUtterance);
+
+    console.log(`Speaking: ${output.textContent}`);
+  } else {
+    console.log('Speach API unavailable');
+  }
+}
+
+main();
+  </script>
+</html>

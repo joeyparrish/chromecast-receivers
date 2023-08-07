@@ -1,15 +1,12 @@
 <html>
   <head>
-    <title>Chromecast Speed Test - Receiver</title>
+    <title>Chromecast Speed Test</title>
     <link rel="stylesheet" type="text/css" href="common.css">
     <style>
 
 #powered-by {
   /* Place the "powered by" message in the center. */
   width: 100%;
-  text-align: center;
-  /* Make it large. */
-  font-size: 4vh;
 }
 
 #embed {
@@ -28,18 +25,7 @@
 
     </style>
     <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
-    <script>
-
-/* A receiver context must be started, or the app will get shut down by the
-   device after some timeout. */
-window.addEventListener('DOMContentLoaded', () => {
-  const context = cast.framework.CastReceiverContext.getInstance();
-  context.start({
-    disableIdleTimeout: true,
-  });
-});
-
-    </script>
+    <script src="start-session.js"></script>
   </head>
   <body>
     <!-- Proper credit.  -->
