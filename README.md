@@ -1,10 +1,14 @@
-# Chromecast Speed Test
+# Useful Chromecast Receivers
 
-A Chromecast receiver app that runs a speed test.
+This repo contains some useful Chromecast receivers for debugging.
 
-Powered by https://OpenSpeedTest.com/
+## Receivers
 
-Want to know how fast your Chromecast's network connection is?
+ - speed-test.html: Runs a speed test, powered by https://OpenSpeedTest.com/
+   Want to know how fast your Chromecast's network connection is?
 
-Visit https://joeyparrish.github.io/chromecast-speed-test/ and click the Cast
-icon to select a device.
+## Usage
+
+Visit https://joeyparrish.github.io/chromecast-receivers/ and click the Cast
+icon associated with a particular receiver to launch that receiver and select a
+device.

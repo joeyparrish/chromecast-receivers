@@ -1,0 +1,13 @@
+body {
+  /* Chromecast may not have the same built-in styles as a desktop browser. */
+  background-color: white;
+  color: black;
+
+  /* We should avoid the edges of the screen because of overscan. */
+  padding: 10vh 10vw;
+}
+
+.hidden {
+  display: none !important;
+}
+
