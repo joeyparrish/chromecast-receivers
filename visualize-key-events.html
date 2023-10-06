@@ -1,0 +1,134 @@
+<html>
+  <head>
+    <title>Show Keydown Events</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="common.css">
+    <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
+    <script src="start-session.js"></script>
+    <style>
+
+@font-face {
+  font-family: 'noto-emoji';
+  src: url('noto-emoji.ttf');
+}
+
+body {
+  font-family: 'Roboto', sans;
+}
+
+.block {
+  font-family: 'noto-emoji';
+
+  width: 50%;
+  margin: 5vh auto;
+
+  font-size: 7vh;
+
+  display: flex;
+  flex-direction: column;
+  gap: 3vh;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+
+  height: 8vh;
+
+  justify-content: center;
+}
+
+.cell {
+  display: flex;
+
+  width: 33%;
+  max-width: 15vh;
+
+  line-height: 10vh;
+
+  align-items: center;
+  justify-content: center;
+}
+
+.pressed {
+  background-color: red;
+}
+
+    </style>
+  </head>
+  <body>
+    <div class="block">
+      <div class="row">
+        <div class="cell"></div>
+        <div id="up" class="cell">▲</div>
+        <div class="cell"></div>
+      </div>
+      <div class="row">
+        <div id="left" class="cell">◄</div>
+        <div id="enter" class="cell">⎆</div>
+        <div id="right" class="cell">►</div>
+      </div>
+      <div class="row">
+        <div class="cell"></div>
+        <div id="down" class="cell">▼</div>
+        <div class="cell"></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="row">
+        <div id="rewind" class="cell">⏪</div>
+        <div id="pause" class="cell">⏸</div>
+        <div id="fastforward" class="cell">⏩</div>
+      </div>
+      <div class="row">
+        <div id="record" class="cell">⏺</div>
+        <div id="play" class="cell">▶️</div>
+        <div id="stop" class="cell">⏹</div>
+      </div>
+      <div class="row">
+        <div id="previous" class="cell">⏮</div>
+        <div id="playpause" class="cell">⏯</div>
+        <div id="next" class="cell">⏭</div>
+      </div>
+    </div>
+  </body>
+  <script>
+
+function keyToElement(key) {
+  switch (key) {
+    case 'Enter': return enter;
+    case 'ArrowUp': return up;
+    case 'ArrowDown': return down;
+    case 'ArrowRight': return right;
+    case 'ArrowLeft': return left;
+
+    case 'MediaRewind': return rewind;
+    case 'MediaPause': return pause;
+    case 'MediaFastForward': return fastforward;
+
+    case '???': return record;
+    case 'MediaPlay': return play;
+    case 'MediaStop': return stop;
+
+    case 'MediaTrackPrevious': return previous;
+    case 'MediaPlayPause': return playpause;
+    case 'MediaTrackNext': return next;
+  }
+  return null;
+}
+
+function main() {
+  document.addEventListener('keydown', (event) => {
+    const element = keyToElement(event.key);
+    element.classList.add('pressed');
+  });
+  document.addEventListener('keyup', (event) => {
+    const element = keyToElement(event.key);
+    element.classList.remove('pressed');
+  });
+}
+
+main();
+  </script>
+</html>
