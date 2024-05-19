@@ -8,6 +8,7 @@ This repo contains some useful Chromecast receivers for debugging.
    Find out how fast your Chromecast's network connection is!
  - print-cast-sdk-version.html: Print (and speak aloud, for speaker devices)
    the Cast SDK version.
+ - visualize-key-events.html **(NOT WORKING)**: See remote control key events on a Chromecast in realtime.
 
 ## Usage
 
