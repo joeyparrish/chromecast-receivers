@@ -1,4 +1,4 @@
-<html>
+<html lang="en">
   <head>
     <title>Print Cast SDK Version</title>
     <link rel="stylesheet" type="text/css" href="common.css">
@@ -6,39 +6,91 @@
     <script src="start-session.js"></script>
   </head>
   <body>
-    <div id="output"></div>
+    <div>
+      Device serial number: <tt id="deviceSerialOutput"></tt>
+    </div>
+    <div>
+      Cast SDK version: <tt id="sdkVersionOutput"></tt>
+    </div>
   </body>
   <script>
 
 async function main() {
-  output.textContent = `Cast SDK version ${cast.framework.VERSION}`;
+  const params = new URLSearchParams(location.search);
+  const deviceSerial = params.get('serial');
+
+  const sdkVersion = window.cast ? cast.framework.VERSION : 0;
+
+  deviceSerialOutput.textContent = deviceSerial;
+  sdkVersionOutput.textContent = sdkVersion;
 
   if (window.speechSynthesis) {
-    const onEnd = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+    function say(sentence, rate) {
+      console.log(`Saying: ${sentence}`);
 
-      // Repeat the version number only, and slowly.
-      const shortUtterance = new SpeechSynthesisUtterance(
-          `version ${cast.framework.VERSION}`);
-      shortUtterance.rate = 0.5;
-      shortUtterance.onend = onEnd;
-      speechSynthesis.speak(shortUtterance);
-    };
+      return new Promise((resolve, reject) => {
+        const utterance = new SpeechSynthesisUtterance(sentence);
+        utterance.lang = 'en';
+        utterance.rate = rate;
+        utterance.onend = resolve;
+        utterance.onerror = reject;
+        speechSynthesis.speak(utterance);
+      });
+    }
 
-    const fullUtterance = new SpeechSynthesisUtterance(output.textContent);
-    fullUtterance.onend = onEnd;
-    fullUtterance.onerror = () => {
+    function pause(seconds) {
+      return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+    }
+
+    async function announce(fastPart, slowParts) {
+      await say(fastPart, 1.0);
+      await pause(1.0);
+
+      for (const slowPart of slowParts) {
+        // Pad these each to the same duration.
+        const targetDuration = 1.1;
+
+        const start = Date.now();
+        await say(slowPart, 0.5);
+        const end = Date.now();
+        const duration = (end - start) / 1000;
+
+        await pause(targetDuration - duration);
+      }
+
+      await pause(1.0);
+    }
+
+    const deviceSerialParts = deviceSerial.split('');
+    const sdkVersionParts = sdkVersion.split('')
+        .map(x => x == '.' ? 'point' : x);
+
+    const deviceSerialAnnouncement = 'The device serial number is:';
+    const sdkVersionAnnouncement = 'The Cast SDK version number is:';
+
+    async function announceEverything() {
+      await announce(deviceSerialAnnouncement, deviceSerialParts);
+      await announce(sdkVersionAnnouncement, sdkVersionParts);
+      await pause(3.0);
+    }
+
+    try {
+      await announceEverything();
+      await say('Message repeats.', 1.0);
+      await pause(1.0);
+      await announceEverything();
+      if (cast.__platform__) {
+        window.close();
+      }
+    } catch (error) {
       // On Cast, it's fine to synthesize speech on page load.
       // On Chrome, you need user interaction.  To debug, allow clicking the
       // document to start this process.
       console.log('Failure!  Click document to play sound.');
       document.addEventListener('click', main, {once: true});
     };
-    speechSynthesis.speak(fullUtterance);
-
-    console.log(`Speaking: ${output.textContent}`);
   } else {
-    console.log('Speach API unavailable');
+    console.log('Speech API unavailable');
   }
 }
 
