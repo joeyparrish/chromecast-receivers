@@ -1,6 +1,7 @@
 <html>
   <head>
     <title>Chromecast Receivers - Launcher</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="common.css">
     <link rel="icon" type="image/svg+xml" href="cast-icon.svg">
     <style>
@@ -32,6 +33,18 @@ body {
   min-width: 10em;
   display: flex;
   flex-direction: column;
+}
+
+@media (max-width: 500px) {
+  .option {
+    min-width: 8em;
+  }
+}
+
+@media (max-width: 400px) {
+  body {
+    font-size: 3vh;
+  }
 }
 
 .title {
