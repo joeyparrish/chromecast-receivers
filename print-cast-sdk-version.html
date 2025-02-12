@@ -4,6 +4,15 @@
     <link rel="stylesheet" type="text/css" href="common.css">
     <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
     <script src="start-session.js"></script>
+    <style>
+
+#errorMessage {
+  margin-top: 2em;
+  color: #bb0000;
+  font-weight: bold;
+}
+
+    </style>
   </head>
   <body>
     <div>
@@ -11,6 +20,8 @@
     </div>
     <div>
       Cast SDK version: <tt id="sdkVersionOutput"></tt>
+    </div>
+    <div id="errorMessage">
     </div>
   </body>
   <script>
@@ -23,6 +34,7 @@ async function main() {
 
   deviceSerialOutput.textContent = deviceSerial;
   sdkVersionOutput.textContent = sdkVersion;
+  errorMessage.textContent = '';
 
   if (window.speechSynthesis) {
     function say(sentence, rate) {
@@ -86,11 +98,11 @@ async function main() {
       // On Cast, it's fine to synthesize speech on page load.
       // On Chrome, you need user interaction.  To debug, allow clicking the
       // document to start this process.
-      console.log('Failure!  Click document to play sound.');
+      errorMessage.textContent = 'Speech failure.  Click document to play sound.';
       document.addEventListener('click', main, {once: true});
     };
   } else {
-    console.log('Speech API unavailable');
+    errorMessage.textContent = 'Speech API unavailable.';
   }
 }
 
