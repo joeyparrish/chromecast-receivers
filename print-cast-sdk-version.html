@@ -6,8 +6,19 @@
     <script src="start-session.js"></script>
     <style>
 
+body {
+  font-size: 9vh;
+}
+
+div {
+  margin-bottom: 1em;
+}
+
+tt {
+  display: block;
+}
+
 #errorMessage {
-  margin-top: 2em;
   color: #bb0000;
   font-weight: bold;
 }
@@ -28,7 +39,7 @@
 
 async function main() {
   const params = new URLSearchParams(location.search);
-  const deviceSerial = params.get('serial');
+  const deviceSerial = params.get('serial') || '';
 
   const sdkVersion = window.cast ? cast.framework.VERSION : 0;
 
