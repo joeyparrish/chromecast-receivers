@@ -49,6 +49,7 @@ async function main() {
         speechSynthesis.speak(utterance);
       });
     }
+    window.say = say;  // For debugging
 
     function pause(seconds) {
       return new Promise(resolve => setTimeout(resolve, seconds * 1000));
@@ -73,7 +74,20 @@ async function main() {
       await pause(1.0);
     }
 
-    const deviceSerialParts = deviceSerial.split('');
+    const deviceSerialParts = deviceSerial.split('')
+        .map(x => {
+          if (/[a-z]/.exec(x)) {
+            // Speak the letter in uppercase, because that says the name "A"
+            // (pronounced long like "ey") instead of the word "a" (pronounced
+            // "uh").
+            return 'lowercase ' + x.toUpperCase();
+          } else if (/[A-Z]/.exec(x)) {
+            return 'capital ' + x;
+          } else {
+            return x;
+          }
+        });
+
     const sdkVersionParts = sdkVersion.split('')
         .map(x => x == '.' ? 'point' : x);
 
@@ -85,6 +99,7 @@ async function main() {
       await announce(sdkVersionAnnouncement, sdkVersionParts);
       await pause(3.0);
     }
+    window.announceEverything = announceEverything;  // For debugging
 
     try {
       await announceEverything();
