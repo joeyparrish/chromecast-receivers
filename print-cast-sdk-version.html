@@ -27,10 +27,10 @@ tt {
   </head>
   <body>
     <div>
-      Device serial number: <tt id="deviceSerialOutput"></tt>
+      Cast SDK version: <tt id="sdkVersionOutput"></tt>
     </div>
     <div>
-      Cast SDK version: <tt id="sdkVersionOutput"></tt>
+      Device serial number: <tt id="deviceSerialOutput"></tt>
     </div>
     <div id="errorMessage">
     </div>
@@ -38,6 +38,36 @@ tt {
   <script>
 
 async function main() {
+  // The NATO phonetic alphabet, for clarity of similar-sounding letters.
+  const phonetic = {
+    'A': 'alpha',
+    'B': 'bravo',
+    'C': 'Charlie',
+    'D': 'delta',
+    'E': 'echo',
+    'F': 'foxtrot',
+    'G': 'golf',
+    'H': 'hotel',
+    'I': 'India',
+    'J': 'Juliet',
+    'K': 'kilo',
+    'L': 'Lima',
+    'M': 'Mike',
+    'N': 'November',
+    'O': 'Oscar',
+    'P': 'papa',
+    'Q': 'Quebec',
+    'R': 'Romeo',
+    'S': 'Sierra',
+    'T': 'tango',
+    'U': 'uniform',
+    'V': 'Victor',
+    'W': 'whiskey',
+    'X': 'x-ray',
+    'Y': 'yankee',
+    'Z': 'Zulu',
+  };
+
   const params = new URLSearchParams(location.search);
   const deviceSerial = params.get('serial') || '';
 
@@ -91,11 +121,12 @@ async function main() {
             // Speak the letter in uppercase, because that says the name "A"
             // (pronounced long like "ey") instead of the word "a" (pronounced
             // "uh").
-            return 'lowercase ' + x.toUpperCase();
+            x = x.toUpperCase();
+            return 'lowercase ' + x + ', as in ' + phonetic[x];
           } else if (/[A-Z]/.exec(x)) {
-            return 'capital ' + x;
+            return 'capital ' + x + ', as in ' + phonetic[x];
           } else {
-            return x;
+            return 'the number ' + x;
           }
         });
 
@@ -106,8 +137,8 @@ async function main() {
     const sdkVersionAnnouncement = 'The Cast SDK version number is:';
 
     async function announceEverything() {
-      await announce(deviceSerialAnnouncement, deviceSerialParts);
       await announce(sdkVersionAnnouncement, sdkVersionParts);
+      await announce(deviceSerialAnnouncement, deviceSerialParts);
       await pause(3.0);
     }
     window.announceEverything = announceEverything;  // For debugging
