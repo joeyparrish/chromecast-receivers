@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Cast w/ Shaka</title>
+    <meta charset="UTF-8">
+    <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
+    <style>
+      /* Add custom styles here. */
+    </style>
+  </head>
+  <body>
+    <cast-media-player></cast-media-player>
+  </body>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const context = cast.framework.CastReceiverContext.getInstance();
+
+      // Receiver options.
+      // https://developers.google.com/cast/docs/reference/web_receiver/cast.framework.CastReceiverOptions
+      const options = new cast.framework.CastReceiverOptions();
+      options.playbackConfig = new cast.framework.PlaybackConfig();
+
+      // This demo is about the latest and best.  Enable DOM-based subtitle and
+      // caption rendering via Shaka Player.
+      options.playbackConfig.enableUITextDisplayer = true;
+
+      // We also want to play everything with Shaka.  This is not the default
+      // yet, but it will be in mid-2025.
+      options.useShakaForHls = true;
+
+      // NOTE: If you want to use a specific Shaka version instead of the
+      // default, specify that here:
+      options.shakaVersion = '4.14.0';
+
+      // Add a default license server for Widevine content.
+      // NOTE: The LOAD message doesn't have a field for this yet.  For now,
+      // presume that all content is licensed/encrypted with Widevine's UAT
+      // server.
+      options.playbackConfig.shakaConfig = {
+        drm: {
+          servers: {
+            'com.widevine.alpha': 'https://proxy.uat.widevine.com/proxy',
+          },
+        },
+      };
+
+      // Receive keyboard events for HDMI-CEC.  Also connects the UI to these
+      // events, plus touch events for touchscreen receivers.
+      options.uiConfig = {
+        touchScreenOptimizedApp: true,
+      };
+
+      context.start(options);
+    });
+  </script>
+</html>
