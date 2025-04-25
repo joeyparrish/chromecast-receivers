@@ -7,7 +7,7 @@
     <style>
 
 body {
-  font-size: 9vh;
+  font-size: 7vh;
 }
 
 div {
@@ -16,6 +16,10 @@ div {
 
 tt {
   display: block;
+}
+
+#userAgentOutput {
+  font-size: 4vh;
 }
 
 #errorMessage {
@@ -31,6 +35,9 @@ tt {
     </div>
     <div>
       Device serial number: <tt id="deviceSerialOutput"></tt>
+    </div>
+    <div>
+      User Agent string: <tt id="userAgentOutput"></tt>
     </div>
     <div id="errorMessage">
     </div>
@@ -75,6 +82,7 @@ async function main() {
 
   deviceSerialOutput.textContent = deviceSerial;
   sdkVersionOutput.textContent = sdkVersion;
+  userAgentOutput.textContent = navigator.userAgent;
   errorMessage.textContent = '';
 
   if (window.speechSynthesis) {
