@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Custom Message Demo</title>
+    <meta charset="UTF-8">
+    <script src="https://www.gstatic.com/cast/sdk/libs/caf_receiver/preview/cast_receiver_framework.js"></script>
+    <style>
+      #chatContainer {
+        position: fixed;
+        inset: 0;
+        height: 100vh;
+        width: 100vw;
+        z-index: 100;
+
+        box-sizing: border-box;
+        padding: 5vh;
+
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+      }
+      #chatBox {
+        font-size: 10vh;
+        color: white;
+
+        margin-bottom: 1em;
+        background: rgba(0, 0, 255, 0.25);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="chatContainer">
+      <div id="chatBox">Hello, world!</div>
+    </div>
+    <cast-media-player></cast-media-player>
+  </body>
+  <script>
+    const CUSTOM_NAMESPACE = 'urn:x-cast:io.github.joeyparrish.demo';
+
+    function rot13(input) {
+      return input.replace(/[A-Z]/gi, (c) => {
+        const index = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".indexOf(c);
+        return "NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm"[index];
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const context = cast.framework.CastReceiverContext.getInstance();
+
+      // Receiver options.
+      // https://developers.google.com/cast/docs/reference/web_receiver/cast.framework.CastReceiverOptions
+      const options = new cast.framework.CastReceiverOptions();
+      options.playbackConfig = new cast.framework.PlaybackConfig();
+
+      // This demo is about the latest and best.  Enable DOM-based subtitle and
+      // caption rendering via Shaka Player.
+      options.playbackConfig.enableUITextDisplayer = true;
+
+      // We also want to play everything with Shaka.  This is not the default
+      // yet, but it will be in mid-2026.
+      options.useShakaForHls = true;
+
+      // NOTE: If you want to use a specific Shaka version instead of the
+      // default, specify that here:
+      options.shakaVersion = '4.15.51';
+
+      // Add a default license server for Widevine content.
+      // NOTE: The LOAD message doesn't have a field for this yet.  For now,
+      // presume that all content is licensed/encrypted with Widevine's UAT
+      // server.
+      options.playbackConfig.shakaConfig = {
+        drm: {
+          servers: {
+            'com.widevine.alpha': 'https://proxy.uat.widevine.com/proxy',
+          },
+        },
+      };
+
+      context.addCustomMessageListener(CUSTOM_NAMESPACE, (event) => {
+        if (event.data.type == 'CHAT') {
+          try {
+            const messageIn = event.data.message;
+            chatBox.textContent = messageIn;
+
+            const messageOut = rot13(messageIn);
+            context.sendCustomMessage(CUSTOM_NAMESPACE, event.senderId, {
+              type: 'CHAT',
+              message: messageOut,
+            });
+          } catch (error) {
+            chatBox.textContent = 'Caught exception!';
+            console.error(error);
+          }
+        }
+      });
+
+      context.start(options);
+    });
+  </script>
+</html>
