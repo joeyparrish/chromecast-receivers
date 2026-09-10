@@ -9,8 +9,9 @@
     <script src="start-session.js"></script>
     <style>
 
-body {
-  font-size: 7vh;
+h1 {
+  font-size: 4vh;
+  margin: auto;
 }
 
 div {
@@ -18,7 +19,9 @@ div {
 }
 
 tt {
+  font-size: 3vh;
   display: block;
+
   font-family: "Kode Mono", monospace;
   font-optical-sizing: auto;
   font-weight: 400;
@@ -26,7 +29,19 @@ tt {
 }
 
 #userAgentOutput {
-  font-size: 4vh;
+  font-size: 2.5vh;
+  white-space: pre;
+}
+
+#metadataContainer {
+  /* Center the metadata block */
+  margin: auto;
+}
+
+#metadataOutput {
+  display: inline-block;
+  white-space: pre;
+  text-align: left;
 }
 
 #errorMessage {
@@ -38,13 +53,20 @@ tt {
   </head>
   <body>
     <div>
-      Cast SDK version: <tt id="sdkVersionOutput"></tt>
+      <h1>Cast SDK version:</h1>
+      <tt id="sdkVersionOutput"></tt>
     </div>
     <div>
-      Device serial number: <tt id="deviceSerialOutput"></tt>
+      <h1>Device serial number:</h1>
+      <tt id="deviceSerialOutput"></tt>
     </div>
     <div>
-      User Agent string: <tt id="userAgentOutput"></tt>
+      <h1>User Agent string:</h1>
+      <tt id="userAgentOutput"></tt>
+    </div>
+    <div>
+      <h1>Device metadata:</h1>
+      <div id="metadataContainer"><tt id="metadataOutput"></tt></div>
     </div>
     <div id="errorMessage">
     </div>
@@ -87,9 +109,13 @@ async function main() {
 
   const sdkVersion = window.cast ? cast.framework.VERSION : 0;
 
+  const context = cast.framework.CastReceiverContext.getInstance();
+  const metadata = context.getDeviceInformation();
+
   deviceSerialOutput.textContent = deviceSerial;
   sdkVersionOutput.textContent = sdkVersion;
-  userAgentOutput.textContent = navigator.userAgent;
+  userAgentOutput.textContent = navigator.userAgent.replace(/\) /g, ')\n');
+  metadataOutput.textContent = JSON.stringify(metadata, null, 2);
   errorMessage.textContent = '';
 
   if (window.speechSynthesis) {
@@ -130,30 +156,63 @@ async function main() {
       await pause(1.0);
     }
 
-    const deviceSerialParts = deviceSerial.split('')
-        .map(x => {
-          if (/[a-z]/.exec(x)) {
-            // Speak the letter in uppercase, because that says the name "A"
-            // (pronounced long like "ey") instead of the word "a" (pronounced
-            // "uh").
-            x = x.toUpperCase();
-            return 'lowercase ' + x + ', as in ' + phonetic[x];
-          } else if (/[A-Z]/.exec(x)) {
-            return 'capital ' + x + ', as in ' + phonetic[x];
-          } else {
-            return 'the number ' + x;
-          }
-        });
+    function alphaNumericParts(input) {
+      return input.split('')
+          .map(x => {
+            if (/[a-z]/.exec(x)) {
+              // Speak the letter in uppercase, because that says the name "A"
+              // (pronounced long like "ey") instead of the word "a" (pronounced
+              // "uh").
+              x = x.toUpperCase();
+              return 'lowercase ' + x + ', as in ' + phonetic[x];
+            } else if (/[A-Z]/.exec(x)) {
+              return 'capital ' + x + ', as in ' + phonetic[x];
+            } else {
+              return 'the number ' + x;
+            }
+          });
+    }
 
+    function valueToSpeech(value) {
+      if (value === null) {
+        return 'null';
+      } else if (value === undefined) {
+        return 'undefined';
+      } else if (value === '') {
+        return 'empty string';
+      } else {
+        return value.toString();
+      }
+    }
+
+    const deviceSerialParts = alphaNumericParts(deviceSerial);
     const sdkVersionParts = sdkVersion.split('')
         .map(x => x == '.' ? 'point' : x);
 
+    const metadataParts = [];
+    for (const key in metadata) {
+      const value = metadata[key];
+      const spokenKey = key
+          .replace(/\bos\b/, 'O.S.')
+          .replace(/\bid\b/, 'I.D.')
+          .replace(/-/g, ' ');
+      const spokenValue = valueToSpeech(value);
+      if (key == 'device-id') {
+        metadataParts.push(`${spokenKey}:`);
+        metadataParts.push(...alphaNumericParts(value));
+      } else {
+        metadataParts.push(`${spokenKey}: ${spokenValue}.`);
+      }
+    }
+
     const deviceSerialAnnouncement = 'The device serial number is:';
     const sdkVersionAnnouncement = 'The Cast SDK version number is:';
+    const metadataAnnouncement = 'The device metadata is:';
 
     async function announceEverything() {
       await announce(sdkVersionAnnouncement, sdkVersionParts);
       await announce(deviceSerialAnnouncement, deviceSerialParts);
+      await announce(metadataAnnouncement, metadataParts);
       await pause(3.0);
     }
     window.announceEverything = announceEverything;  // For debugging
