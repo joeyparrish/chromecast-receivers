@@ -3,11 +3,13 @@
     <title>Chromecast Receivers - Launcher</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="common.css">
-    <link rel="icon" type="image/svg+xml" href="cast-icon.svg">
+    <link rel="icon" type="image/svg+xml" href="cast-icon-white-bg-black-fg.svg">
     <style>
 
 /* Center everything. */
 body {
+  background: white;
+  color: black;
   text-align: center;
 }
 
@@ -56,7 +58,7 @@ body {
   margin-bottom: 2vh;
 }
 
-.launch {
+launch-cast-button {
   /* Style the launch button to just be the icon. */
   border: none;
   background: none;
@@ -69,8 +71,14 @@ body {
   margin-top: auto;
 }
 
-.launch img {
-  /* Fill the button size with the image. */
+launch-cast-button button {
+  height: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+launch-cast-button img {
   height: 100%;
 }
 
@@ -79,8 +87,23 @@ body {
   font-size: 2vh;
 }
 
-#source a {
+a {
   color: black;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: black;
+    color: white;
+  }
+
+  .option {
+    border-color: white;
+  }
+
+  a {
+    color: white;
+  }
 }
 
     </style>
@@ -105,6 +128,27 @@ function launch(appId) {
   cast.framework.CastContext.getInstance().requestSession();
 }
 
+class LaunchCastButton extends HTMLElement {
+  connectedCallback() {
+    const button = document.createElement('button');
+    const picture = document.createElement('picture');
+    const source = document.createElement('source');
+    source.srcset = 'cast-icon-transparent-bg-white-fg.svg';
+    source.media = '(prefers-color-scheme: dark)';
+    const img = document.createElement('img');
+    img.src = 'cast-icon-transparent-bg-black-fg.svg';
+    /* Fill the button size with the image. */
+    img.height = '100%';
+
+    picture.appendChild(source);
+    picture.appendChild(img);
+    button.appendChild(picture);
+    this.appendChild(button);
+  }
+}
+
+customElements.define('launch-cast-button', LaunchCastButton);
+
     </script>
   </head>
   <body>
@@ -123,19 +167,19 @@ function launch(appId) {
       <div class="option">
         <div class="title">Speed Test</div>
         <div class="description">Powered by OpenSpeedtest.com</div>
-        <button class="launch" onclick="launch('009EBD9B')"><img src="cast-icon.svg"></button>
+        <launch-cast-button onclick="launch('009EBD9B')" />
       </div>
 
       <div class="option">
         <div class="title">Print Cast SDK Version &amp; Serial Number</div>
         <div class="description">Print (and speak aloud, for speaker devices) the Cast SDK version and device serial number.</div>
-        <button class="launch" onclick="launch('6889684F')"><img src="cast-icon.svg"></button>
+        <launch-cast-button onclick="launch('6889684F')" />
       </div>
 
       <div class="option">
         <div class="title">Visualize Key Events</div>
         <div class="description">See remote control key events on a Chromecast in realtime.</div>
-        <button class="launch" onclick="launch('C5091515')"><img src="cast-icon.svg"></button>
+        <launch-cast-button onclick="launch('C5091515')" />
       </div>
 
       <div class="option">
