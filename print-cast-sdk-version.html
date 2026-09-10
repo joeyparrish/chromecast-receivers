@@ -9,40 +9,30 @@
     <script src="start-session.js"></script>
     <style>
 
+body {
+  text-align: left;
+  font-size: 3vh;
+}
+
 h1 {
-  font-size: 4vh;
-  margin: auto;
+  font-size: 3vh;
+  display: inline-block;
+  vertical-align: top;
+  margin: 0;
 }
 
 div {
-  margin-bottom: 1em;
+  margin-bottom: 3vh;
 }
 
 tt {
-  font-size: 3vh;
-  display: block;
+  display: inline-block;
+  white-space: pre;
 
   font-family: "Kode Mono", monospace;
   font-optical-sizing: auto;
   font-weight: 400;
   font-style: normal;
-}
-
-#userAgentOutput {
-  font-size: 2.5vh;
-  white-space: pre;
-}
-
-#metadataContainer, #probeContainer {
-  /* Center the block */
-  margin: auto;
-}
-
-#metadataOutput, #probeOutput {
-  font-size: 2.5vh;
-  display: inline-block;
-  white-space: pre;
-  text-align: left;
 }
 
 #errorMessage {
@@ -67,11 +57,11 @@ tt {
     </div>
     <div>
       <h1>Device metadata:</h1>
-      <div id="metadataContainer"><tt id="metadataOutput"></tt></div>
+      <tt id="metadataOutput"></tt>
     </div>
     <div>
       <h1>Device probe:</h1>
-      <div id="probeContainer"><tt id="probeOutput"></tt></div>
+      <tt id="probeOutput"></tt>
     </div>
     <div id="errorMessage">
     </div>
@@ -138,6 +128,18 @@ async function main() {
     maxH264Level = 5.2;
   }
 
+  // Assumes a flat object
+  function briefJSON(obj) {
+    // Serialize
+    return JSON.stringify(obj, null, 2)
+        // Split into lines
+        .split('\n')
+        // Drop first and last line ("{" and "}")
+        .slice(1, -1)
+        // Combine with newlines again
+        .join('\n');
+  }
+
   const probe = {
     memory: (navigator.deviceMemory || 0) + ' GB',
     cores: navigator.hardwareConcurrency || 0,
@@ -151,8 +153,8 @@ async function main() {
   deviceSerialOutput.textContent = deviceSerial;
   sdkVersionOutput.textContent = sdkVersion;
   userAgentOutput.textContent = navigator.userAgent.replace(/\) /g, ')\n');
-  metadataOutput.textContent = JSON.stringify(metadata, null, 2);
-  probeOutput.textContent = JSON.stringify(probe, null, 2);
+  metadataOutput.textContent = briefJSON(metadata);
+  probeOutput.textContent = briefJSON(probe);
   errorMessage.textContent = '';
 
   if (window.speechSynthesis) {
@@ -229,6 +231,8 @@ async function main() {
         const spokenKey = key
             .replace(/\bos\b/, 'O.S.')
             .replace(/\bid\b/, 'I.D.')
+            .replace(/\bhevc\b/, 'H.E.V.C.')
+            .replace(/\bh264\b/, 'H 2 6 4')
             .replace(/-/g, ' ');
         const spokenValue = valueToSpeech(value);
         if (key == 'device-id') {
