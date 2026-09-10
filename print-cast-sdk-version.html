@@ -198,16 +198,10 @@ async function main() {
     function alphaNumericParts(input) {
       return input.split('')
           .map(x => {
-            if (/[a-z]/.exec(x)) {
-              // Speak the letter in uppercase, because that says the name "A"
-              // (pronounced long like "ey") instead of the word "a" (pronounced
-              // "uh").
-              x = x.toUpperCase();
-              return 'lowercase ' + x + ', as in ' + phonetic[x];
-            } else if (/[A-Z]/.exec(x)) {
-              return 'capital ' + x + ', as in ' + phonetic[x];
+            if (/[A-Za-z]/.exec(x)) {
+              return phonetic[x.toUpperCase()];
             } else {
-              return 'the number ' + x;
+              return x;
             }
           });
     }
