@@ -4,7 +4,7 @@ body {
   color: black;
 
   /* We should avoid the edges of the screen because of overscan. */
-  padding: 10vh 10vw;
+  padding: 5vh 10vw;
   /* Padding inside width/height. */
   box-sizing: border-box;
   /* No margin. */

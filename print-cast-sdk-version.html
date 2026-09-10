@@ -33,12 +33,13 @@ tt {
   white-space: pre;
 }
 
-#metadataContainer {
-  /* Center the metadata block */
+#metadataContainer, #probeContainer {
+  /* Center the block */
   margin: auto;
 }
 
-#metadataOutput {
+#metadataOutput, #probeOutput {
+  font-size: 2.5vh;
   display: inline-block;
   white-space: pre;
   text-align: left;
@@ -67,6 +68,10 @@ tt {
     <div>
       <h1>Device metadata:</h1>
       <div id="metadataContainer"><tt id="metadataOutput"></tt></div>
+    </div>
+    <div>
+      <h1>Device probe:</h1>
+      <div id="probeContainer"><tt id="probeOutput"></tt></div>
     </div>
     <div id="errorMessage">
     </div>
@@ -111,16 +116,48 @@ async function main() {
 
   const context = cast.framework.CastReceiverContext.getInstance();
   const metadata = context.getDeviceInformation();
+  const deviceCapabilities = context.getDeviceCapabilities() || {};
+
+  let maxH264Level = 0;
+  if (MediaSource.isTypeSupported('video/mp4; codecs="avc1.640028"')) {
+    maxH264Level = 4.0;
+  }
+  if (MediaSource.isTypeSupported('video/mp4; codecs="avc1.640029"')) {
+    maxH264Level = 4.1;
+  }
+  if (MediaSource.isTypeSupported('video/mp4; codecs="avc1.64002a"')) {
+    maxH264Level = 4.2;
+  }
+  if (MediaSource.isTypeSupported('video/mp4; codecs="avc1.640032"')) {
+    maxH264Level = 5.0;
+  }
+  if (MediaSource.isTypeSupported('video/mp4; codecs="avc1.640033"')) {
+    maxH264Level = 5.1;
+  }
+  if (MediaSource.isTypeSupported('video/mp4; codecs="avc1.640034"')) {
+    maxH264Level = 5.2;
+  }
+
+  const probe = {
+    memory: (navigator.deviceMemory || 0) + ' GB',
+    cores: navigator.hardwareConcurrency || 0,
+    'display-supported': deviceCapabilities['display_supported'] || true,
+    'cast-lite': deviceCapabilities['cast_lite_only'] || false,
+    'max-h264-level': maxH264Level,
+    'hevc-supported': MediaSource.isTypeSupported('video/mp4; codecs="hev1.1.6.L150.B0"'),
+    'hevc-10-bit-supported': MediaSource.isTypeSupported('video/mp4; codecs="hev1.2.6.L150.B0"'),
+  };
 
   deviceSerialOutput.textContent = deviceSerial;
   sdkVersionOutput.textContent = sdkVersion;
   userAgentOutput.textContent = navigator.userAgent.replace(/\) /g, ')\n');
   metadataOutput.textContent = JSON.stringify(metadata, null, 2);
+  probeOutput.textContent = JSON.stringify(probe, null, 2);
   errorMessage.textContent = '';
 
   if (window.speechSynthesis) {
     function say(sentence, rate) {
-      console.log(`Saying: ${sentence}`);
+      console.log('Saying: ' + sentence);
 
       return new Promise((resolve, reject) => {
         const utterance = new SpeechSynthesisUtterance(sentence);
@@ -185,25 +222,30 @@ async function main() {
       }
     }
 
+    function jsonParts(obj) {
+      const parts = [];
+      for (const key in obj) {
+        const value = obj[key];
+        const spokenKey = key
+            .replace(/\bos\b/, 'O.S.')
+            .replace(/\bid\b/, 'I.D.')
+            .replace(/-/g, ' ');
+        const spokenValue = valueToSpeech(value);
+        if (key == 'device-id') {
+          parts.push(spokenKey + ':');
+          parts.push(...alphaNumericParts(value));
+        } else {
+          parts.push(spokenKey + ': ' + spokenValue + '.');
+        }
+      }
+      return parts;
+    }
+
     const deviceSerialParts = alphaNumericParts(deviceSerial);
     const sdkVersionParts = sdkVersion.split('')
         .map(x => x == '.' ? 'point' : x);
-
-    const metadataParts = [];
-    for (const key in metadata) {
-      const value = metadata[key];
-      const spokenKey = key
-          .replace(/\bos\b/, 'O.S.')
-          .replace(/\bid\b/, 'I.D.')
-          .replace(/-/g, ' ');
-      const spokenValue = valueToSpeech(value);
-      if (key == 'device-id') {
-        metadataParts.push(`${spokenKey}:`);
-        metadataParts.push(...alphaNumericParts(value));
-      } else {
-        metadataParts.push(`${spokenKey}: ${spokenValue}.`);
-      }
-    }
+    const metadataParts = jsonParts(metadata);
+    const probeParts = jsonParts(probe);
 
     const deviceSerialAnnouncement = 'The device serial number is:';
     const sdkVersionAnnouncement = 'The Cast SDK version number is:';
@@ -212,7 +254,7 @@ async function main() {
     async function announceEverything() {
       await announce(sdkVersionAnnouncement, sdkVersionParts);
       await announce(deviceSerialAnnouncement, deviceSerialParts);
-      await announce(metadataAnnouncement, metadataParts);
+      await announce(metadataAnnouncement, metadataParts.concat(probeParts));
       await pause(3.0);
     }
     window.announceEverything = announceEverything;  // For debugging
