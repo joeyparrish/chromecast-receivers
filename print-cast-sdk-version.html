@@ -140,6 +140,28 @@ async function main() {
         .join('\n');
   }
 
+  let hasHardwareDrm = false;
+  try {
+    const config = {
+      videoCapabilities: [{
+        contentType: 'video/mp4; codecs="avc1.42E01E"',
+        encryptionScheme: 'cenc',
+        robustness: 'HW_SECURE_ALL',
+      }],
+      audioCapabilities: [{
+        contentType: 'audio/mp4; codecs="mp4a.40.2"',
+        encryptionScheme: 'cenc',
+        robustness: 'HW_SECURE_ALL',
+      }],
+      initDataTypes: ['cenc'],
+    };
+
+    const access = await navigator.requestMediaKeySystemAccess('com.widevine.alpha', [config]);
+    await access.createMediaKeys();
+    hasHardwareDrm = true;
+  } catch (exception) {
+  }
+
   const probe = {
     memory: (navigator.deviceMemory || 0) + ' GB',
     cores: navigator.hardwareConcurrency || 0,
@@ -148,6 +170,7 @@ async function main() {
     'max-h264-level': maxH264Level,
     'hevc-supported': MediaSource.isTypeSupported('video/mp4; codecs="hev1.1.6.L150.B0"'),
     'hevc-10-bit-supported': MediaSource.isTypeSupported('video/mp4; codecs="hev1.2.6.L150.B0"'),
+    'hardware-drm-supported': hasHardwareDrm,
   };
 
   deviceSerialOutput.textContent = deviceSerial;
