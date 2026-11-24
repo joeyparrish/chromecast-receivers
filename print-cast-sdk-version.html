@@ -1,3 +1,4 @@
+<!-- Proposed contribution: add passive browser microphone API diagnostics. -->
 <html lang="en">
   <head>
     <title>Print Cast SDK Version</title>
@@ -172,6 +173,43 @@ async function main() {
     'hevc-10-bit-supported': MediaSource.isTypeSupported('video/mp4; codecs="hev1.2.6.L150.B0"'),
     'hardware-drm-supported': hasHardwareDrm,
   };
+
+  // These checks inspect API/permission metadata only. They do not request
+  // microphone access, enumerate devices, or read audio samples.
+  probe['secure-context'] = window.isSecureContext === true;
+  probe['media-devices-api-available'] = !!navigator.mediaDevices;
+  probe['get-user-media-available'] =
+      !!navigator.mediaDevices &&
+      typeof navigator.mediaDevices.getUserMedia === 'function';
+  probe['microphone-permission-query-api-available'] =
+      !!navigator.permissions &&
+      typeof navigator.permissions.query === 'function';
+  probe['microphone-permission-state'] = 'unavailable';
+
+  if (probe['microphone-permission-query-api-available']) {
+    let permissionQueryTimeout;
+    try {
+      const microphonePermission = await Promise.race([
+        navigator.permissions.query({name: 'microphone'}),
+        new Promise((_, reject) => {
+          permissionQueryTimeout = setTimeout(
+              () => reject(new Error('permission-query-timeout')), 1500);
+        }),
+      ]);
+      probe['microphone-permission-state'] = microphonePermission.state;
+    } catch (exception) {
+      if (exception && exception.name === 'TypeError') {
+        probe['microphone-permission-state'] = 'descriptor-unsupported';
+      } else if (exception &&
+          exception.message === 'permission-query-timeout') {
+        probe['microphone-permission-state'] = 'query-timeout';
+      } else {
+        probe['microphone-permission-state'] = 'query-failed';
+      }
+    } finally {
+      clearTimeout(permissionQueryTimeout);
+    }
+  }
 
   deviceSerialOutput.textContent = deviceSerial;
   sdkVersionOutput.textContent = sdkVersion;
